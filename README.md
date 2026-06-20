@@ -63,11 +63,11 @@ Calculates Exact Match, Token F1, and Numeric Match scores, with a weighted comp
 - Splits sections into ~2000-token sub-chunks with 200-token overlap at sentence boundaries
 
 ### Stage 2: QA Generation
-- **1 Gemini API call per chunk** — generates all 4 question types in a single batched prompt
-- The prompt enforces minimum quotas: at least 1 fact_extraction, 1 numeric_calculation, 1 comparison, and 1 multi_step_reasoning question per chunk
+- **1 API call per chunk** — generates all 4 question types in a single batched prompt
+- The prompt attempts to enforce minimum quotas: at least 1 fact_extraction, 1 numeric_calculation, 1 comparison, and 1 multi_step_reasoning question per chunk
 - Includes 4 few-shot examples (one per type) to guide quality and format
-- Uses Gemini's native structured output (`response_schema`) with Pydantic models — zero JSON parsing failures
-- Forces verbatim source passage extraction (character-for-character from the input)
+- Uses native structured output (`response_schema`) with Pydantic models to significantly reduce JSON parsing failures
+- Attempts to extract verbatim source passages (character-for-character from the input)
 - Requires step-by-step reasoning for numeric and multi-step questions
 
 ### Stage 3: Verification
@@ -113,17 +113,19 @@ Overlapping chunks produce near-identical questions. TF-IDF cosine similarity is
 
 ## Known Limitations
 
-1. **Table parsing**: Complex nested HTML tables (common in financial statements) may lose formatting or column alignment during markdown conversion. This can affect the quality of numeric questions generated from tabular data.
+1. **Question Taxonomy Reliability**: Some `multi_step_reasoning` or `hard`-labeled questions are single-sentence restatements with artificial step numbering rather than genuine multi-hop inference across passages. Similarly, some `numeric_calculation` questions extract stated numbers rather than deriving them. The type/difficulty taxonomy needs stronger prompt constraints or a post-hoc classifier to enforce.
 
-2. **Section detection**: Regex-based section detection works well for standard 10-K formats but may miss sections in filings with non-standard HTML structure. The fallback splits the document into equal parts.
+2. **Confidence Score Utility**: Confidence scores cluster near 1.0 for all accepted pairs. The verification stage currently behaves more like a pass/fail gate than a graded signal.
 
-3. **Source passage accuracy**: While the prompt demands verbatim extraction, the LLM occasionally paraphrases slightly. The verification step catches most cases, but some minor mismatches may slip through.
+3. **Section Imbalance**: The Risk Factors and Market Risk sections are underrepresented (1.4% each) because those sections in this specific 10-K filing are extremely brief and dense with hedged, forward-looking language that's harder to extract clean fact/numeric questions from. This would require section-specific prompting.
 
-4. **Free-tier rate limits**: At 6 RPM pacing, the pipeline takes ~10 minutes. If Gemini reduces free-tier limits further, the pipeline may need to be spread across multiple runs using `--resume`.
+4. **Table parsing**: Complex nested HTML tables (common in financial statements) may lose formatting or column alignment during markdown conversion. This can affect the quality of numeric questions generated from tabular data.
 
-5. **Single-document scope**: The current pipeline processes one 10-K at a time. Cross-document questions (comparing companies) are not supported.
+5. **Section detection**: Regex-based section detection works well for standard 10-K formats but may miss sections in filings with non-standard HTML structure. The fallback splits the document into equal parts.
 
-6. **Numeric verification**: The verifier checks if numbers are present in the source passage but cannot independently recompute complex calculations. CoT reasoning steps help but aren't guaranteed correct.
+6. **Free-tier rate limits**: If using the free Gemini tier, the pipeline takes ~10 minutes due to pacing.
+
+7. **Numeric verification**: The verifier checks if numbers are present in the source passage but cannot independently recompute complex calculations. CoT reasoning steps help but aren't guaranteed correct.
 
 ---
 

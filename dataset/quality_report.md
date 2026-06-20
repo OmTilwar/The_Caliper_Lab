@@ -1,6 +1,6 @@
 # Quality Analysis Report
 
-*Generated: 2026-06-20 17:18:43*
+*Generated: 2026-06-21 00:44:42*
 
 *Source: NVIDIA FY2025 10-K Filing (CIK 0001045810)*
 
@@ -20,18 +20,18 @@
 
 | Question Type | Count | Percentage |
 |:---|:---|:---|
-| fact_extraction | 202 | 57.1% ███████████ |
+| fact_extraction | 248 | 70.1% ██████████████ |
 | comparison | 63 | 17.8% ███ |
-| multi_step_reasoning | 46 | 13.0% ██ |
-| numeric_calculation | 43 | 12.1% ██ |
+| numeric_calculation | 35 | 9.9% █ |
+| multi_step_reasoning | 8 | 2.3%  |
 
 ## Difficulty Distribution
 
 | Difficulty | Count | Percentage |
 |:---|:---|:---|
 | easy | 175 | 49.4% █████████ |
-| medium | 134 | 37.9% ███████ |
-| hard | 45 | 12.7% ██ |
+| medium | 170 | 48.0% █████████ |
+| hard | 9 | 2.5%  |
 
 ## Source Section Distribution
 
@@ -87,19 +87,21 @@ Below are representative examples from each question type, demonstrating the div
 
 ### Numeric Calculation
 
-**Q:** What is the expected reduction in cost per token for the NVIDIA Rubin platform compared to Blackwell?
-
-**A:** The NVIDIA Rubin platform delivers up to a 10x reduction in cost per token compared to Blackwell.
-
-*Difficulty: medium | Section: Item 1: Business*
-
----
-
 **Q:** What is the ratio of employees engaged in research and development to those engaged in sales, marketing, operations, and administrative positions?
 
 **A:** The ratio of employees engaged in research and development to those engaged in sales, marketing, operations, and administrative positions is approximately 2.82:1.
 
 **Reasoning:** Step 1: R&D employees = 31,000. Step 2: Sales, marketing, operations, and admin employees = 11,000. Step 3: Ratio = 31,000 / 11,000 = 2.82.
+
+*Difficulty: medium | Section: Item 1: Business*
+
+---
+
+**Q:** If NVIDIA's turnover rate remained constant, how many employees would leave if the workforce size is 10,000?
+
+**A:** If the turnover rate is 3.7 percent, approximately 370 employees would leave.
+
+**Reasoning:** Step 1: Workforce size = 10,000. Step 2: Turnover rate = 3.7%. Step 3: Number of employees leaving = 10,000 * 0.037 = 370.
 
 *Difficulty: medium | Section: Item 1: Business*
 
@@ -127,21 +129,21 @@ Below are representative examples from each question type, demonstrating the div
 
 ### Multi Step Reasoning
 
-**Q:** What advancements in AI and computing have been made since the introduction of CUDA in 2006?
+**Q:** What are the steps involved in NVIDIA's approach to enhancing its AI technology leadership?
 
-**A:** Since the introduction of CUDA in 2006, NVIDIA has opened the parallel processing capabilities of its GPU to a broad range of compute-intensive applications, paving the way for the emergence of modern AI.
+**A:** NVIDIA enhances its AI technology leadership by providing a complete accelerated computing platform for AI, including full-stack data center-scale compute and networking solutions, and adding AI-specific features to its GPU architecture.
 
-**Reasoning:** Step 1: CUDA introduced in 2006. Step 2: Enabled parallel processing on GPUs. Step 3: Resulted in the emergence of modern AI applications.
+**Reasoning:** Step 1: Identify the complete accelerated computing platform for AI. Step 2: Recognize the inclusion of full-stack data center-scale compute and networking solutions. Step 3: Note the addition of AI-specific features to GPU architecture.
 
 *Difficulty: hard | Section: Item 1: Business*
 
 ---
 
-**Q:** What is the expected impact of generative and agentic AI on the market for PC GPUs?
+**Q:** If the company incurs a $4.5 billion charge due to diminished demand for H20 products, what might be the implications for their future revenue from these products?
 
-**A:** Generative and agentic AI is expected to expand the market for PC GPUs as more users choose NVIDIA GPUs for running these applications locally on their PCs.
+**A:** The implications may include reduced future revenue from H20 products due to the excess inventory and purchase obligations resulting from the diminished demand.
 
-**Reasoning:** Step 1: Generative and agentic AI is becoming more prevalent. Step 2: This leads to a broader set of PC users. Step 3: Users are expected to choose NVIDIA GPUs for local applications. Step 4: This choice is critical for privacy, latency, and cost-sensitive AI applications.
+**Reasoning:** Step 1: Understand that the $4.5 billion charge indicates excess inventory. Step 2: Recognize that diminished demand leads to lower future sales. Step 3: Conclude that the company may face reduced revenue from H20 products.
 
 *Difficulty: hard | Section: Item 1: Business*
 
@@ -153,4 +155,4 @@ Below are representative examples from each question type, demonstrating the div
 - **Source passage length**: avg 184 chars (min: 23, max: 727)
 - **Answer length**: avg 133 chars
 - **Question length**: avg 95 chars
-- **Reasoning steps provided**: 122/89 (137% of calculation/reasoning questions)
+- **Reasoning steps provided**: 122/354 (34% of all questions)
