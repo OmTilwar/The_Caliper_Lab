@@ -1,6 +1,6 @@
 # Quality Analysis Report
 
-*Generated: 2026-06-21 00:44:42*
+*Generated: 2026-06-21 00:50:50*
 
 *Source: NVIDIA FY2025 10-K Filing (CIK 0001045810)*
 
@@ -155,4 +155,4 @@ Below are representative examples from each question type, demonstrating the div
 - **Source passage length**: avg 184 chars (min: 23, max: 727)
 - **Answer length**: avg 133 chars
 - **Question length**: avg 95 chars
-- **Reasoning steps provided**: 122/354 (34% of all questions)
+- **Reasoning steps provided**: 43/43 (100% of calculation/reasoning questions)

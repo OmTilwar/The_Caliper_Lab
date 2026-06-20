@@ -141,8 +141,9 @@ def generate_quality_report(
     
     # Check for reasoning steps presence
     has_reasoning = df["reasoning_steps"].notna().sum()
-    lines.append(f"- **Reasoning steps provided**: {has_reasoning}/{len(df)} "
-                 f"({has_reasoning/len(df)*100:.0f}% of all questions)")
+    needs_reasoning = len(df[df["question_type"].isin(["numeric_calculation", "multi_step_reasoning"])])
+    lines.append(f"- **Reasoning steps provided**: {has_reasoning}/{needs_reasoning} "
+                 f"({has_reasoning/needs_reasoning*100:.0f}% of calculation/reasoning questions)" if needs_reasoning > 0 else "")
     
     # ── Write the report ─────────────────────────────────────
     report_content = "\n".join(lines)

@@ -70,7 +70,11 @@ def main():
                 df.at[idx, 'difficulty_estimate'] = 'medium'
                 downgraded_multi += 1
                 
-        # 3. Calculate continuous confidence score
+        # 3. Clear reasoning steps for non-reasoning questions
+        if df.at[idx, 'question_type'] in ['fact_extraction', 'comparison']:
+            df.at[idx, 'reasoning_steps'] = None
+                
+        # 4. Calculate continuous confidence score
         score = calculate_overlap_score(row['ground_truth_answer'], row['source_passage'])
         df.at[idx, 'confidence_score'] = score
         
