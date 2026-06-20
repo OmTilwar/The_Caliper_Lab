@@ -127,6 +127,8 @@ Overlapping chunks produce near-identical questions. TF-IDF cosine similarity is
 
 7. **Numeric verification**: The verifier checks if numbers are present in the source passage but cannot independently recompute complex calculations. CoT reasoning steps help but aren't guaranteed correct.
 
+8. **Manual Reporting Process Gap**: The static `project_summary_report.md` contains hardcoded metrics that are not auto-regenerated from the dataset on every pipeline or cleanup script run. The dataset and the report can fall out of sync if the report is not manually re-verified against the CSV before submission.
+
 ---
 
 ## Scaling Strategy
