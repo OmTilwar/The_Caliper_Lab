@@ -6,7 +6,7 @@ An automated pipeline that ingests SEC 10-K filings and generates large, verifie
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/YOUR_USERNAME/The_Caliper_Lab.git
+git clone https://github.com/OmTilwar/The_Caliper_Lab.git
 cd The_Caliper_Lab
 pip install -r requirements.txt
 
