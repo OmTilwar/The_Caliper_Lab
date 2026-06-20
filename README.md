@@ -10,9 +10,9 @@ git clone https://github.com/YOUR_USERNAME/The_Caliper_Lab.git
 cd The_Caliper_Lab
 pip install -r requirements.txt
 
-# 2. Set your API key (free from https://aistudio.google.com/apikey)
+# 2. Set your API keys
 cp .env.example .env
-# Edit .env and add your GOOGLE_API_KEY
+# Edit .env and add EITHER an OPENROUTER_API_KEY (recommended) or a GOOGLE_API_KEY
 
 # 3. Run the pipeline
 python pipeline.py
@@ -29,6 +29,16 @@ python pipeline.py --resume             # Resume from last checkpoint
 python pipeline.py --skip-download      # Use cached 10-K file
 ```
 
+### Evaluation Harness
+
+To score an AI model's answers against the generated dataset:
+
+```bash
+# Evaluate a CSV of predictions against the ground truth dataset
+python evaluate.py --predictions predictions.csv --dataset dataset/qa_pairs.csv
+```
+Calculates Exact Match, Token F1, and Numeric Match scores, with a weighted composite score that penalizes hallucinated numbers in calculation questions.
+
 ---
 
 ## Approach
@@ -38,10 +48,11 @@ python pipeline.py --skip-download      # Use cached 10-K file
 ```
 [SEC EDGAR] → [Parse & Chunk] → [QA Generation] → [Verification] → [Dedup] → [Dataset]
      │              │                  │                 │              │          │
-  Download     BeautifulSoup     Gemini Flash       Gemini Flash    TF-IDF    CSV/JSONL
-  10-K HTML    + regex section   1 call/chunk       5 QAs/batch    cosine     100+ rows
-               detection         all 4 Q types     faithfulness    similarity
+  Download     BeautifulSoup    OpenRouter/Gemini  OpenRouter/Gemini  TF-IDF    CSV/JSONL
+  10-K HTML    + regex section  1 call/chunk       5 QAs/batch       cosine     100+ rows
+               detection        all 4 Q types      faithfulness      similarity
                                                    + answerability
+                                                   + confidence score
 ```
 
 ### Stage 1: Parse & Chunk
@@ -64,7 +75,8 @@ python pipeline.py --skip-download      # Use cached 10-K file
 - Combined two-check verification in each call:
   - **Faithfulness**: Is every claim in the answer directly supported by the source passage? Are all numbers present or correctly derivable?
   - **Answerability**: Can the question be answered completely using only the source passage?
-- A QA pair is accepted **only if both checks pass**
+- **Confidence Score**: The verifier assigns a 0.0 to 1.0 confidence score based on the clarity and grounding of the QA pair.
+- A QA pair is accepted **only if both boolean checks pass**
 - Temperature set to 0.0 for deterministic, strict evaluation
 
 ### Stage 4: Deduplication & Output
@@ -77,11 +89,11 @@ python pipeline.py --skip-download      # Use cached 10-K file
 
 ## Design Choices
 
-### Why Gemini 2.5 Flash?
-- **Free tier**: ~250 RPD, 1M TPM — sufficient for our ~49 total API calls
-- **Native structured output**: `response_schema` parameter with Pydantic models eliminates JSON parsing failures entirely
-- **Quality**: Strong performance on financial reasoning tasks
-- **Single API key**: No multi-provider complexity
+### Why a Multi-Backend LLM Strategy?
+To handle strict free-tier rate limits, the pipeline supports multiple backends:
+- **OpenRouter (Primary)**: Using the `openai` SDK + `instructor`, the pipeline accesses top-tier models (like `gpt-4o-mini` or free options like `llama-3`) which natively support JSON tool-calling and have much higher request limits.
+- **Gemini (Fallback)**: Using `google-genai` and Gemini 2.5 Flash as a completely free fallback with native `response_schema` support.
+The pipeline automatically routes to OpenRouter if an `OPENROUTER_API_KEY` is present.
 
 ### Why Batched Calls?
 The free tier limits us to ~250 requests/day. Naive approach needs ~340 calls (4 generation passes + 2 verification passes per QA). Batching reduces this to **~49 calls** — 80% under the limit with room for retries.
@@ -158,6 +170,7 @@ The dataset is saved in both CSV and JSONL format in `dataset/`:
 | `question_type` | One of 4 types | `numeric_calculation` |
 | `difficulty_estimate` | easy / medium / hard | `medium` |
 | `section` | Source section in the 10-K | "Item 7: MD&A" |
+| `confidence_score` | 0.0 to 1.0 verifier score | `1.0` |
 | `reasoning_steps` | CoT steps (for calc/reasoning) | "Step 1: Revenue = $130,497M..." |
 
 ---

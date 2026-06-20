@@ -89,6 +89,11 @@ class QAVerification(BaseModel):
         description="True if the question can be completely and unambiguously "
                     "answered using only the source passage, without external knowledge."
     )
+    confidence: float = Field(
+        description="Overall confidence score from 0.0 to 1.0 indicating how confident "
+                    "you are that this QA pair is correct, well-grounded, and high quality. "
+                    "1.0 = perfect, 0.0 = completely wrong."
+    )
     reasoning: str = Field(
         description="Brief explanation of the verification decision"
     )
@@ -111,4 +116,5 @@ class VerifiedQA(BaseModel):
     question_type: str
     difficulty_estimate: str
     section: str
+    confidence_score: float
     reasoning_steps: Optional[str] = None

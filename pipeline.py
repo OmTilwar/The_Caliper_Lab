@@ -29,6 +29,7 @@ from src.verifier import verify_qa_pairs
 from src.deduplicator import deduplicate_qa_pairs
 from src.llm_client import GeminiClient
 from src.models import VerifiedQA
+from src.quality_report import generate_quality_report
 
 
 def save_checkpoint(data: list, stage: str):
@@ -88,6 +89,7 @@ def output_dataset(
             question_type=qa.question_type.value,
             difficulty_estimate=qa.difficulty.value,
             section=section,
+            confidence_score=getattr(verification, 'confidence', 1.0),
             reasoning_steps=qa.reasoning_steps,
         )
         rows.append(row)
@@ -215,6 +217,8 @@ def main():
         raw_qa_pairs = generate_qa_pairs(chunks, client)
         save_checkpoint(raw_qa_pairs, "generation")
     
+    raw_count = len(raw_qa_pairs)
+    
     # ── Stage 5: Verify QA Pairs ──────────────────────────────
     verified_pairs = None
     
@@ -233,8 +237,11 @@ def main():
         verified_pairs = verify_qa_pairs(raw_qa_pairs, client)
         save_checkpoint(verified_pairs, "verification")
     
+    verified_count = len(verified_pairs)
+    
     # ── Stage 6: Deduplicate ──────────────────────────────────
     deduped_pairs = deduplicate_qa_pairs(verified_pairs)
+    dedup_removed = verified_count - len(deduped_pairs)
     
     # ── Check if we have enough pairs ─────────────────────────
     if len(deduped_pairs) < args.min_pairs:
@@ -248,8 +255,23 @@ def main():
     
     df = output_dataset(deduped_pairs)
     
-    # ── Summary ───────────────────────────────────────────────
+    # ── Stage 8: Quality Report ───────────────────────────────
     total_time = time.time() - start_time
+    
+    print(f"\n{'='*60}")
+    print("STAGE 8: Quality Report")
+    print(f"{'='*60}")
+    
+    generate_quality_report(
+        df=df,
+        raw_count=raw_count,
+        verified_count=verified_count,
+        dedup_removed=dedup_removed,
+        total_time=total_time,
+        api_calls=client.total_requests,
+    )
+    
+    # ── Summary ───────────────────────────────────────────────
     print_summary(df, total_time, client.total_requests)
 
 

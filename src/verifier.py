@@ -16,7 +16,7 @@ VERIFICATION_PROMPT = """You are a strict quality assurance agent for a financia
 
 ## YOUR TASK
 
-For each QA pair below, evaluate TWO criteria:
+For each QA pair below, evaluate TWO criteria and assign a confidence score:
 
 ### 1. FAITHFULNESS
 Is every factual claim in the Answer directly and explicitly supported by the Source Passage?
@@ -28,6 +28,13 @@ Is every factual claim in the Answer directly and explicitly supported by the So
 Given ONLY the Source Passage and the Question (pretend you haven't seen the answer), could a knowledgeable reader answer this question completely and unambiguously?
 - The source passage must contain sufficient information to fully answer the question.
 - The question should not require external knowledge, other sections of the document, or unstated context.
+
+### 3. CONFIDENCE SCORE
+Assign an overall confidence score from 0.0 to 1.0:
+- 1.0 = Perfect. Answer is fully grounded, question is clear, source passage is sufficient.
+- 0.8-0.9 = High confidence. Minor stylistic issues but factually correct.
+- 0.5-0.7 = Moderate. Some concerns about completeness or clarity.
+- 0.0-0.4 = Low. Significant issues with faithfulness or answerability.
 
 ## VERDICT RULES
 - Set is_faithful=true ONLY if the answer is 100% supported by the source passage.
